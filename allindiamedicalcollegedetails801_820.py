@@ -8861,17 +8861,21 @@ def parse_articles_section(driver,URLS):
     wait = WebDriverWait(driver, 15)
 
     try:
-        section = wait.until(
-            EC.presence_of_element_located((By.ID, "Articles"))
-        )
+        wait.until(EC.presence_of_element_located((By.ID, "Articles")))
+        section = driver.find_element(By.ID, "Articles")  # fresh element
     except TimeoutException:
         print("⚠️ Articles section not found, skipping...")
         return []
+    
     driver.execute_script(
         "arguments[0].scrollIntoView({block:'center'});", section
     )
+    
     time.sleep(2)
-
+    
+    # 🔥 Re-fetch again to avoid stale element
+    section = driver.find_element(By.ID, "Articles")
+    
     html = driver.execute_script("return arguments[0].innerHTML;", section)
     soup = BeautifulSoup(html, "html.parser")
 
